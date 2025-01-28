@@ -603,3 +603,25 @@
     - **Phishing Attacks**: Attackers can use open redirects to make phishing links appear more legitimate by hiding them behind a trusted domain.
     - **Malware Distribution**: Users may be redirected to sites hosting malware.
     - **XSS**: It can leveraged XSS
+
+
+### Verb Tampering 
+  - This is a type of security vulnerability where an attacker attempts to manipulate HTTP methods (such as GET, POST, PUT, DELETE, etc.) to trigger unexpected behavior on the server. 
+  - This vulnerability can lead to unauthorized access, data manipulation, or even the execution of malicious code.
+
+  #### Explanation of Verb Tampering:
+    In the HTTP protocol, different methods are used for specific actions. For example:
+
+    **GET**: Used to request data from the server.
+    **POST**: Used to send data to the server.
+    **PUT**: Used to update data on the server.
+    **DELETE**: Used to delete data from the server.
+
+  - In some cases, servers do not properly validate HTTP methods, which may allow unauthorized or unexpected methods to be executed.
+  - This weakness can be exploited by attackers to access functionalities that should not be available.
+
+  #### Examples of Verb Tampering:
+    1. Changing GET to POST:
+      Suppose there is a login form that uses the POST method. If the server does not properly validate the methods, an attacker could change the method to GET, sending sensitive data in the URL, which might then be logged on the server.
+    2. Using PUT or DELETE Methods:
+      If the server mistakenly allows PUT or DELETE methods, an attacker could upload new files to the server or delete existing ones.
