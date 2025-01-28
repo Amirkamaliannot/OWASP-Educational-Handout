@@ -181,7 +181,7 @@
 
 
 
-## Week 5 and 6
+## Week 2 (5,6,7)
 
 ### 1. Comparison of DOM and BOM
 
@@ -376,7 +376,7 @@
           Access-Control-Allow-Credentials: true
 
 
-### 6.Simple vs. Non-Simple Requests in CORS
+### 7.Simple vs. Non-Simple Requests in CORS
   - In CORS, requests are categorized into **Simple Requests** and **Non-Simple Requests** based on their characteristics. 
   - This distinction determines whether the browser needs to send a **Preflight Request** (a OPTION request) before making the actual request.
 
@@ -481,7 +481,7 @@
 
 
 
-### 7.CORS Misconfiguration Vulnerability 
+### 8.CORS Misconfiguration Vulnerability 
   - CORS misconfigurations occur when servers are improperly set up, allowing unauthorized or overly permissive cross-origin requests.
   - This can expose sensitive data or enable attacks.
 
@@ -510,7 +510,7 @@
     - **Limit Exposed Headers**: Only expose necessary headers.
 
 
-### 8.CSRF 
+### 9.CSRF 
   #### What is CSRF?
   - Cross-Site Request Forgery (CSRF) is an attack that tricks the user into executing unwanted actions on a different website where they are authenticated. 
   - This can lead to unauthorized actions being performed on behalf of the user.
@@ -528,7 +528,7 @@
   - **Convert Requests to Non-Simple**: Make requests non-simple by adding custom headers or using JSON data type, which triggers a preflight request due to CORS policy.
 
 
-### 9.XSS (Cross-Site Scripting)
+### 10.XSS (Cross-Site Scripting)
   - XSS is a security vulnerability that allows attackers to inject malicious scripts (usually JavaScript) into web pages. 
   - These scripts execute in the victim's browser and can steal sensitive data (like cookies, tokens) or perform malicious actions.
   - It can bypass CSRF token by reading DOM
@@ -590,7 +590,9 @@
         Set-Cookie: sessionId=abc123; HttpOnly; Secure
         ```
 
-### open redirect
+## Week 3 (8,9)
+
+### 1.open redirect
   - This is a type of vulnerability in web applications where an attacker can manipulate a URL to redirect users to an arbitrary, potentially malicious website.
   - This occurs when a web application accepts user input to determine the destination of a redirect without properly validating or restricting the input.
 
@@ -605,7 +607,7 @@
     - **XSS**: It can leveraged XSS
 
 
-### Verb Tampering 
+### 2.Verb Tampering 
   - This is a type of security vulnerability where an attacker attempts to manipulate HTTP methods (such as GET, POST, PUT, DELETE, etc.) to trigger unexpected behavior on the server. 
   - This vulnerability can lead to unauthorized access, data manipulation, or even the execution of malicious code.
 
@@ -629,7 +631,7 @@
   
 
 
-### Force Browsing
+### 3.Force Browsing
   - Force Browsing is an attack where a malicious user manually guesses or manipulates URLs to access restricted resources, bypassing access controls. 
   - It targets poorly secured files, directories, or endpoints.  
 
@@ -653,7 +655,7 @@
 
 
 
-### FFUF Overview
+### 4.FFUF Overview
   - FFUF is designed to fuzz web applications by sending a large number of requests with varying inputs (e.g., URLs, parameters, headers) to discover hidden resources, misconfigurations, or vulnerabilities.
   - It is highly customizable and supports multi-threading, making it one of the fastest fuzzing tools available.
 
@@ -712,4 +714,11 @@
     ffuf -w common_dirs.txt -u https://example.com/FUZZ
     ```
   3. Analyze the results to identify accessible directories or files.
+
+
+
+### 5.S3 Bucket Misconfiguration
+ - Misconfigured Amazon S3 buckets can lead to sensitive data exposure, unauthorized access, or unintended data leaks. 
+ - This happens when S3 bucket permissions are overly permissive or improperly set.
+ - firt dig the website domain and if a you found CNAME with .....amazonaws.com you and bucket misconfigured. then you can see the list of files with deleting -website from main url.
 
