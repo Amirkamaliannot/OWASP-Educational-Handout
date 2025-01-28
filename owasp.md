@@ -625,3 +625,91 @@
       Suppose there is a login form that uses the POST method. If the server does not properly validate the methods, an attacker could change the method to GET, sending sensitive data in the URL, which might then be logged on the server.
     2. Using PUT or DELETE Methods:
       If the server mistakenly allows PUT or DELETE methods, an attacker could upload new files to the server or delete existing ones.
+
+  
+
+
+### Force Browsing
+  - Force Browsing is an attack where a malicious user manually guesses or manipulates URLs to access restricted resources, bypassing access controls. 
+  - It targets poorly secured files, directories, or endpoints.  
+
+  #### Examples  
+  - Accessing admin panels: `/admin`  
+  - Downloading sensitive files: `/backup.zip`  
+  - Viewing unauthorized user data: `/user/profile?userId=1234`  
+
+  #### Prevention  
+  1. Implement strict access controls for all resources.  
+  2. Validate user authorization for every request.  
+  3. Disable directory listing and remove sensitive files from public access.  
+  4. Use strong, non-guessable naming for files/directories.  
+  5. Monitor logs for unusual access patterns.  
+
+  #### Tools for Force Browsing
+  - **ffuf**: Directory and file brute-forcing.  
+  - **Gobuster**: Brute-forcing web paths and files.  
+  - **Dirb/Dirbuster**: Directory discovery.  
+  - **Burp Suite**: For manual and automated testing.  
+
+
+
+### FFUF Overview
+  - FFUF is designed to fuzz web applications by sending a large number of requests with varying inputs (e.g., URLs, parameters, headers) to discover hidden resources, misconfigurations, or vulnerabilities.
+  - It is highly customizable and supports multi-threading, making it one of the fastest fuzzing tools available.
+
+---
+
+  #### How FFUF Can Be Used for Forced Browsing and Verb Tampering:
+  1. **Directory and File Discovery**:
+    - FFUF can be used to brute-force directories and files on a web server by trying common or custom wordlists.
+    - Example:
+      ```bash
+      ffuf -w /path/to/wordlist.txt -u https://example.com/FUZZ
+      ```
+      Here, `FUZZ` is a placeholder that FFUF replaces with entries from the wordlist.
+
+  2. **Parameter Fuzzing**:
+    - FFUF can fuzz parameters in URLs to discover hidden or sensitive endpoints.
+    - Example:
+      ```bash
+      ffuf -w /path/to/wordlist.txt -u https://example.com/page?param=FUZZ
+      ```
+
+  3. **Verb Tampering**:
+    - FFUF can be used to test different HTTP methods (e.g., GET, POST, PUT, DELETE) to see how the server responds.
+    - Example:
+      ```bash
+      ffuf -X PUT -u https://example.com/resource
+      ```
+      This tests if the server allows the `PUT` method on a specific resource.
+
+  4. **Subdomain Enumeration**:
+    - FFUF can also be used to discover subdomains by fuzzing the DNS records.
+    - Example:
+      ```bash
+      ffuf -w /path/to/subdomains.txt -u https://FUZZ.example.com
+      ```
+  5. **File Fuzzing**:
+    - FFUF can also be used to discover File to discover hidden or sensitive files.
+    - Example:
+      ```bash
+      ffuf -w /path/to/wordlist.txt -u https://example.com/FUZZ -e .sql
+      ```
+
+
+  #### Key Features of FFUF:
+  - **Speed**: FFUF is optimized for performance and can handle thousands of requests per second.
+  - **Flexibility**: It supports custom wordlists, filters, and output formats.
+  - **Filters**: You can filter responses based on status codes, response size, or regex patterns.
+  - **Recursion**: FFUF can recursively fuzz directories to discover nested resources.
+  - **Proxy Support**: It can be used with proxies for debugging or anonymity.
+
+  #### Example Use Case for Forced Browsing:
+  Suppose you want to discover hidden directories on a target website:
+  1. Download or create a wordlist (e.g., `common_dirs.txt`).
+  2. Run FFUF:
+    ```bash
+    ffuf -w common_dirs.txt -u https://example.com/FUZZ
+    ```
+  3. Analyze the results to identify accessible directories or files.
+
