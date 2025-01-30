@@ -722,3 +722,32 @@
  - This happens when S3 bucket permissions are overly permissive or improperly set.
  - firt dig the website domain and if a you found CNAME with .....amazonaws.com you and bucket misconfigured. then you can see the list of files with deleting -website from main url.
 
+
+
+ ### 6.SSRF (Server-Side Request Forgery)
+  - is a critical web security vulnerability that allows an attacker to make the server perform unauthorized requests to internal or external resources. 
+  - This can lead to sensitive data exposure, internal network access, or even remote code execution.
+
+  #### How SSRF Works:
+  1. **Exploiting Server-Side Requests**:
+    - The attacker tricks the server into making requests to internal services (e.g., databases, APIs) or external systems.
+    - Example: A web application fetches data from a user-supplied URL (e.g., `https://example.com/fetch?url=http://internal-service`).
+
+  2. **Bypassing Security Controls**:
+    - The server may have access to resources that are not directly accessible to the attacker (e.g., internal networks, cloud metadata services).
+
+  3. **Impact**:
+    - Access to sensitive data (e.g., credentials, configuration files).
+    - Exploitation of internal services (e.g., databases, caches).
+    - Remote code execution in some cases.
+
+  #### Common SSRF Scenarios:
+  1. **Cloud Metadata Services**:
+    - Exploiting cloud metadata endpoints (e.g., AWS EC2 metadata service at `http://169.254.169.254`).
+    - Example: Fetching IAM credentials from the metadata service.
+  2. **Internal Network Access**:
+    - Accessing internal services (e.g., databases, admin panels) via the server.
+  3. **Port Scanning**:
+    - Using the server to scan internal or external ports.
+  4. **File Inclusion**:
+    - Reading local files using `file://` protocol (e.g., `file:///etc/passwd`).
