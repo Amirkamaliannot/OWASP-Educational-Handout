@@ -1,4 +1,4 @@
-
+ 
 # Owasp zere
 # OWASP Educational Handout
 
@@ -590,7 +590,7 @@
         Set-Cookie: sessionId=abc123; HttpOnly; Secure
         ```
 
-## Week 3 (8,9)
+## Week 3 (8,9,10)
 
 ### 1.open redirect
   - This is a type of vulnerability in web applications where an attacker can manipulate a URL to redirect users to an arbitrary, potentially malicious website.
@@ -751,3 +751,92 @@
     - Using the server to scan internal or external ports.
   4. **File Inclusion**:
     - Reading local files using `file://` protocol (e.g., `file:///etc/passwd`).
+
+
+  #### Protocols Commonly Exploited in SSRF:
+  1. **HTTP/HTTPS**:
+    - The most common protocol used in SSRF attacks.
+    - Example: Fetching internal resources like `http://localhost/admin` or `http://169.254.169.254/latest/meta-data/`.
+
+  2. **File Protocol (`file://`)**:
+    - Allows reading local files on the server.
+    - Example: `file:///etc/passwd` to read the password file on a Unix-based system.
+
+  3. **FTP Protocol (`ftp://`)**:
+    - Used to access files on FTP servers.
+    - Example: `ftp://attacker.com/malicious-file` to fetch a malicious file.
+
+  4. **Gopher Protocol (`gopher://`)**:
+    - A powerful protocol that can be used to send custom TCP packets.
+    - Example: Exploiting Redis or Memcached services by crafting malicious payloads.
+
+  5. **DNS Protocol (`dns://`)**:
+    - Can be used to perform DNS lookups or exfiltrate data via DNS queries.
+    - Example: `dns://attacker.com` to trigger a DNS query.
+
+  6. **LDAP Protocol (`ldap://` or `ldaps://`)**:
+    - Used to interact with LDAP servers.
+    - Example: `ldap://internal-ldap-server` to query internal directory services.
+
+  7. **Redis Protocol (`redis://`)**:
+    - Used to interact with Redis databases.
+    - Example: `redis://localhost:6379` to execute commands on a Redis server.
+
+  8. **SMTP Protocol (`smtp://`)**:
+    - Used to send emails via SMTP servers.
+    - Example: `smtp://internal-smtp-server` to send malicious emails.
+
+  9. **SSH Protocol (`ssh://`)**:
+    - Used to interact with SSH servers.
+    - Example: `ssh://internal-ssh-server` to attempt SSH connections.
+
+
+  #### How Protocols Are Exploited in SSRF:
+  1. **Internal Resource Access**:
+    - Attackers use protocols like `http://` or `file://` to access internal resources (e.g., databases, configuration files).
+
+  2. **Data Exfiltration**:
+    - Protocols like `dns://` or `ftp://` can be used to exfiltrate data to an attacker-controlled server.
+
+  3. **Remote Code Execution**:
+    - Protocols like `gopher://` or `redis://` can be used to execute commands on internal services.
+
+  4. **Port Scanning**:
+    - Attackers can use the server to scan internal or external ports by manipulating protocols.
+
+
+
+## Week 4 (11)
+  ### IDOR (Insecure Direct Object References) 
+  - is a common web application vulnerability that occurs when an application exposes a reference to an internal object (e.g., a file, database record, or resource) without proper authorization checks. 
+  - This allows attackers to manipulate these references to access unauthorized data or perform unauthorized actions.
+
+  #### How IDOR Works:
+  1. **Direct Object Reference**:
+    - The application uses user-supplied input (e.g., an ID, filename, or key) to access an object directly.
+    - Example: `https://example.com/profile?id=123`.
+
+  2. **Lack of Authorization**:
+    - The application fails to verify if the user is authorized to access the requested object.
+
+  3. **Exploitation**:
+    - An attacker modifies the reference (e.g., changing `id=123` to `id=124`) to access another user's data.
+
+
+#### Common Examples of IDOR:
+1. **User Profiles**:
+   - Accessing another user's profile by changing the user ID in the URL.
+   - Example: `https://example.com/profile?id=123` → `https://example.com/profile?id=124`.
+
+2. **File Access**:
+   - Downloading files by manipulating file names or IDs.
+   - Example: `https://example.com/download?file=report.pdf` → `https://example.com/download?file=secret.pdf`.
+
+3. **Database Records**:
+   - Accessing database records by modifying record IDs.
+   - Example: `https://example.com/order?id=1001` → `https://example.com/order?id=1002`.
+
+4. **API Endpoints**:
+   - Exploiting APIs that expose object references without proper checks.
+   - Example: `GET /api/users/123` → `GET /api/users/124`.
+
