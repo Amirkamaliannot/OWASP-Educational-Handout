@@ -807,36 +807,116 @@
 
 
 ## Week 4 (11)
-  ### IDOR (Insecure Direct Object References) 
+  ### 1.IDOR (Insecure Direct Object References) 
   - is a common web application vulnerability that occurs when an application exposes a reference to an internal object (e.g., a file, database record, or resource) without proper authorization checks. 
   - This allows attackers to manipulate these references to access unauthorized data or perform unauthorized actions.
 
-  #### How IDOR Works:
-  1. **Direct Object Reference**:
-    - The application uses user-supplied input (e.g., an ID, filename, or key) to access an object directly.
-    - Example: `https://example.com/profile?id=123`.
+    #### How IDOR Works:
+    1. **Direct Object Reference**:
+      - The application uses user-supplied input (e.g., an ID, filename, or key) to access an object directly.
+      - Example: `https://example.com/profile?id=123`.
 
-  2. **Lack of Authorization**:
-    - The application fails to verify if the user is authorized to access the requested object.
+    2. **Lack of Authorization**:
+      - The application fails to verify if the user is authorized to access the requested object.
 
-  3. **Exploitation**:
-    - An attacker modifies the reference (e.g., changing `id=123` to `id=124`) to access another user's data.
+    3. **Exploitation**:
+      - An attacker modifies the reference (e.g., changing `id=123` to `id=124`) to access another user's data.
+
+    #### Common Examples of IDOR:
+    1. **User Profiles**:
+      - Accessing another user's profile by changing the user ID in the URL.
+      - Example: `https://example.com/profile?id=123` → `https://example.com/profile?id=124`.
+
+    2. **File Access**:
+      - Downloading files by manipulating file names or IDs.
+      - Example: `https://example.com/download?file=report.pdf` → `https://example.com/download?file=secret.pdf`.
+
+    3. **Database Records**:
+      - Accessing database records by modifying record IDs.
+      - Example: `https://example.com/order?id=1001` → `https://example.com/order?id=1002`.
+
+    4. **API Endpoints**:
+      - Exploiting APIs that expose object references without proper checks.
+      - Example: `GET /api/users/123` → `GET /api/users/124`.
 
 
-#### Common Examples of IDOR:
-1. **User Profiles**:
-   - Accessing another user's profile by changing the user ID in the URL.
-   - Example: `https://example.com/profile?id=123` → `https://example.com/profile?id=124`.
 
-2. **File Access**:
-   - Downloading files by manipulating file names or IDs.
-   - Example: `https://example.com/download?file=report.pdf` → `https://example.com/download?file=secret.pdf`.
+  ### 2.JWT (JSON Web Token) 
+    - is a compact, URL-safe token format used for securely transmitting information between parties as a JSON object. 
+    - It is commonly used for authentication and authorization in web applications. 
+    - However, if not implemented correctly, JWTs can introduce security vulnerabilities.
 
-3. **Database Records**:
-   - Accessing database records by modifying record IDs.
-   - Example: `https://example.com/order?id=1001` → `https://example.com/order?id=1002`.
+    #### Structure of a JWT:
+    - A JWT consists of three parts separated by dots (`.`):
+    1. **Header**:
+      - Contains metadata about the token, such as the signing algorithm (e.g., `HS256`, `RS256`).
+      - Example:
+        ```json
+        {
+          "alg": "HS256",
+          "typ": "JWT"
+        }
+        ```
 
-4. **API Endpoints**:
-   - Exploiting APIs that expose object references without proper checks.
-   - Example: `GET /api/users/123` → `GET /api/users/124`.
+    2. **Payload**:
+      - Contains claims (e.g., user ID, roles, expiration time).
+      - Example:
+        ```json
+        {
+          "sub": "1234567890",
+          "name": "John Doe",
+          "admin": true,
+          "exp": 1516239022
+        }
+        ```
+
+    3. **Signature**:
+      - Used to verify the *integrity* of the token.
+      - Created by signing the encoded header and payload with a secret key or private key.
+
+
+    #### Common JWT Vulnerabilities:
+      1. **None Algorithm**:
+        - Some libraries support the `none` algorithm, which means no signature is required.
+        - Attackers can modify the token and set the algorithm to `none` to bypass signature verification.
+      2. **Weak Secret Keys**:
+        - Using weak or predictable secret keys makes it easier for attackers to brute-force the signature.
+      3. **Algorithm Confusion**:
+        - If the server does not explicitly specify the expected algorithm, attackers can switch between symmetric (e.g., `HS256`) and asymmetric (e.g., `RS256`) algorithms to forge tokens.
+      4. **Token Expiry**:
+        - Missing or improperly implemented expiration (`exp`) claims can allow tokens to be used indefinitely.
+      5. **Sensitive Data in Payload**:
+        - Storing sensitive data (e.g., passwords, API keys) in the payload can lead to data exposure if the token is intercepted.
+      6. **Lack of Audience Validation**:
+        - Failing to validate the `aud` (audience) claim can allow tokens to be used across different applications.
+
+
+    #### Prevention Measures:
+      1. **Use Strong Secret Keys**: Use cryptographically secure random keys for signing tokens.
+      2. **Disable the `none` Algorithm**: Ensure your JWT library rejects tokens with the `none` algorithm.
+      3. **Validate the Algorithm**: Explicitly specify and validate the expected signing algorithm.
+      4. **Set Expiration Time**: Always include and validate the `exp` claim to ensure tokens expire.
+      5. **Validate Claims**: Verify claims like `iss` (issuer), `aud` (audience), and `sub` (subject).
+      6. **Use HTTPS**: Always transmit JWTs over HTTPS to prevent interception.
+      7. **Store Tokens Securely**: Store JWTs securely on the client side (e.g., in `HttpOnly` cookies).
+      8. **Rotate Keys**: Regularly rotate signing keys to mitigate the impact of key compromise.
+
+
+    #### Tools for Testing JWT Security:
+      1. **jwt.io**: A popular tool for decoding and debugging JWTs.
+      2. **Burp Suite**: Use the *JWT Editor* extension to manipulate and test JWTs.
+      3. **jwt_tool**: A command-line tool for testing JWT vulnerabilities.
+
+    #### Example of JWT Exploitation:
+      1. **None Algorithm Attack**:
+        - Original Token:
+          ```
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+          ```
+        - Modified Token (Algorithm set to `none`):
+          ```
+          eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+          ```
+      2. **Mitigation**:
+        - Ensure your JWT library rejects tokens with the `none` algorithm.
 
