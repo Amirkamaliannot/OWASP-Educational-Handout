@@ -807,176 +807,228 @@
 
 
 ## Week 4 (11)
-  ### 1.IDOR (Insecure Direct Object References) 
-  - is a common web application vulnerability that occurs when an application exposes a reference to an internal object (e.g., a file, database record, or resource) without proper authorization checks. 
-  - This allows attackers to manipulate these references to access unauthorized data or perform unauthorized actions.
+### 1.IDOR (Insecure Direct Object References) 
+- is a common web application vulnerability that occurs when an application exposes a reference to an internal object (e.g., a file, database record, or resource) without proper authorization checks. 
+- This allows attackers to manipulate these references to access unauthorized data or perform unauthorized actions.
 
-    #### How IDOR Works:
-    1. **Direct Object Reference**:
-      - The application uses user-supplied input (e.g., an ID, filename, or key) to access an object directly.
-      - Example: `https://example.com/profile?id=123`.
+  #### How IDOR Works:
+  1. **Direct Object Reference**:
+    - The application uses user-supplied input (e.g., an ID, filename, or key) to access an object directly.
+    - Example: `https://example.com/profile?id=123`.
 
-    2. **Lack of Authorization**:
-      - The application fails to verify if the user is authorized to access the requested object.
+  2. **Lack of Authorization**:
+    - The application fails to verify if the user is authorized to access the requested object.
 
-    3. **Exploitation**:
-      - An attacker modifies the reference (e.g., changing `id=123` to `id=124`) to access another user's data.
+  3. **Exploitation**:
+    - An attacker modifies the reference (e.g., changing `id=123` to `id=124`) to access another user's data.
 
-    #### Common Examples of IDOR:
-    1. **User Profiles**:
-      - Accessing another user's profile by changing the user ID in the URL.
-      - Example: `https://example.com/profile?id=123` → `https://example.com/profile?id=124`.
+  #### Common Examples of IDOR:
+  1. **User Profiles**:
+    - Accessing another user's profile by changing the user ID in the URL.
+    - Example: `https://example.com/profile?id=123` → `https://example.com/profile?id=124`.
 
-    2. **File Access**:
-      - Downloading files by manipulating file names or IDs.
-      - Example: `https://example.com/download?file=report.pdf` → `https://example.com/download?file=secret.pdf`.
+  2. **File Access**:
+    - Downloading files by manipulating file names or IDs.
+    - Example: `https://example.com/download?file=report.pdf` → `https://example.com/download?file=secret.pdf`.
 
-    3. **Database Records**:
-      - Accessing database records by modifying record IDs.
-      - Example: `https://example.com/order?id=1001` → `https://example.com/order?id=1002`.
+  3. **Database Records**:
+    - Accessing database records by modifying record IDs.
+    - Example: `https://example.com/order?id=1001` → `https://example.com/order?id=1002`.
 
-    4. **API Endpoints**:
-      - Exploiting APIs that expose object references without proper checks.
-      - Example: `GET /api/users/123` → `GET /api/users/124`.
+  4. **API Endpoints**:
+    - Exploiting APIs that expose object references without proper checks.
+    - Example: `GET /api/users/123` → `GET /api/users/124`.
 
 
 
-  ### 2.JWT (JSON Web Token) 
-    - is a compact, URL-safe token format used for securely transmitting information between parties as a JSON object. 
-    - It is commonly used for authentication and authorization in web applications. 
-    - However, if not implemented correctly, JWTs can introduce security vulnerabilities.
+### 2.JWT (JSON Web Token) 
+  - is a compact, URL-safe token format used for securely transmitting information between parties as a JSON object. 
+  - It is commonly used for authentication and authorization in web applications. 
+  - However, if not implemented correctly, JWTs can introduce security vulnerabilities.
 
-    #### Structure of a JWT:
-    - A JWT consists of three parts separated by dots (`.`):
-    1. **Header**:
-      - Contains metadata about the token, such as the signing algorithm (e.g., `HS256`, `RS256`).
-      - Example:
-        ```json
-        {
-          "alg": "HS256",
-          "typ": "JWT"
-        }
+  #### Structure of a JWT:
+  - A JWT consists of three parts separated by dots (`.`):
+  1. **Header**:
+    - Contains metadata about the token, such as the signing algorithm (e.g., `HS256`, `RS256`).
+    - Example:
+      ```json
+      {
+        "alg": "HS256",
+        "typ": "JWT"
+      }
+      ```
+
+  2. **Payload**:
+    - Contains claims (e.g., user ID, roles, expiration time).
+    - Example:
+      ```json
+      {
+        "sub": "1234567890",
+        "name": "John Doe",
+        "admin": true,
+        "exp": 1516239022
+      }
+      ```
+
+  3. **Signature**:
+    - Used to verify the *integrity* of the token.
+    - Created by signing the encoded header and payload with a secret key or private key.
+
+
+  #### Common JWT Vulnerabilities:
+    1. **None Algorithm**:
+      - Some libraries support the `none` algorithm, which means no signature is required.
+      - Attackers can modify the token and set the algorithm to `none` to bypass signature verification.
+    2. **Weak Secret Keys**:
+      - Using weak or predictable secret keys makes it easier for attackers to brute-force the signature.
+    3. **Algorithm Confusion**:
+      - If the server does not explicitly specify the expected algorithm, attackers can switch between symmetric (e.g., `HS256`) and asymmetric (e.g., `RS256`) algorithms to forge tokens.
+    4. **Token Expiry**:
+      - Missing or improperly implemented expiration (`exp`) claims can allow tokens to be used indefinitely.
+    5. **Sensitive Data in Payload**:
+      - Storing sensitive data (e.g., passwords, API keys) in the payload can lead to data exposure if the token is intercepted.
+    6. **Lack of Audience Validation**:
+      - Failing to validate the `aud` (audience) claim can allow tokens to be used across different applications.
+
+
+  #### Prevention Measures:
+    1. **Use Strong Secret Keys**: Use cryptographically secure random keys for signing tokens.
+    2. **Disable the `none` Algorithm**: Ensure your JWT library rejects tokens with the `none` algorithm.
+    3. **Validate the Algorithm**: Explicitly specify and validate the expected signing algorithm.
+    4. **Set Expiration Time**: Always include and validate the `exp` claim to ensure tokens expire.
+    5. **Validate Claims**: Verify claims like `iss` (issuer), `aud` (audience), and `sub` (subject).
+    6. **Use HTTPS**: Always transmit JWTs over HTTPS to prevent interception.
+    7. **Store Tokens Securely**: Store JWTs securely on the client side (e.g., in `HttpOnly` cookies).
+    8. **Rotate Keys**: Regularly rotate signing keys to mitigate the impact of key compromise.
+
+
+  #### Tools for Testing JWT Security:
+    1. **jwt.io**: A popular tool for decoding and debugging JWTs.
+    2. **Burp Suite**: Use the *JWT Editor* extension to manipulate and test JWTs.
+    3. **jwt_tool**: A command-line tool for testing JWT vulnerabilities.
+
+  #### Example of JWT Exploitation:
+    1. **None Algorithm Attack**:
+      - Original Token:
         ```
-
-    2. **Payload**:
-      - Contains claims (e.g., user ID, roles, expiration time).
-      - Example:
-        ```json
-        {
-          "sub": "1234567890",
-          "name": "John Doe",
-          "admin": true,
-          "exp": 1516239022
-        }
+        eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
         ```
+      - Modified Token (Algorithm set to `none`):
+        ```
+        eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+        ```
+    2. **Mitigation**:
+      - Ensure your JWT library rejects tokens with the `none` algorithm.
 
-    3. **Signature**:
-      - Used to verify the *integrity* of the token.
-      - Created by signing the encoded header and payload with a secret key or private key.
+### 3.File Upload Vulnerabilities
+  - occur when a web application allows users to upload files without proper validation, filtering, or security controls.
+  -  Attackers can exploit this functionality to upload malicious files, execute arbitrary code, or compromise the server.
+  
+  #### Common Risks of File Upload Vulnerabilities:
+    1. **Malware Upload**:
+      - Attackers can upload malicious files (e.g., viruses, trojans) to the server.
+
+    2. **Remote Code Execution (RCE)**:
+      - Uploading executable files (e.g., `.php`, `.jsp`) can allow attackers to execute arbitrary code on the server.
+
+    3. **Denial of Service (DoS)**:
+      - Uploading large files or filling up disk space can crash the server or disrupt services.
+
+    4. **Upload Frontend Scripts**:
+      - HTML or SVG files can be used to injects JS script for XSS attacks.
+
+    5. **Defacement**:
+      - Attackers can overwrite or replace legitimate files with malicious content.
+
+  #### Common Exploitation Techniques:
+    1. **File Type Bypass**:
+      - Attackers bypass file type restrictions by modifying file extensions or MIME types.
+      - Example: Renaming a `.php` file to `.jpg.php`.
+
+    2. **Altenative Extensions** 
+      -Uploading files with alrenative formats like : `.phar` or `phtml`
+
+    3. **File Name Bypass**:
+      - Adding null bytes (`#`) to truncate the file extension during validation like `malicious.php#.jpg`.
+      - Adding null bytes (`%00`) or (`%0a`) to truncate the file extension during validation like `malicious.php%00.jpg`.
+
+    4. **File Content Manipulation**:
+      - Embedding malicious code within seemingly harmless files (e.g., images with embedded PHP code) and Bypassing *Magic bytes chack*.
+
+    5. **Path Traversal**:
+      - Uploading files to unintended directories by manipulating file paths.
+      - Example: `../../malicious.php`.
+
+  #### Prevention Measures:
+    1. **Validate File Types**:
+      - Use both file extension and MIME type validation.
+      - Example: Allow only `.jpg`, `.png`, and `.pdf` files.
+    2. **Use Allowlists**:
+      - Restrict uploads to a predefined list of allowed file types and extensions.
+    3. **Scan Files for Malware**:
+      - Use antivirus software to scan uploaded files for malicious content.
+    4. **Rename Uploaded Files**:
+      - Generate random filenames for uploaded files to prevent overwriting or path traversal.
+    5. **Store Files Outside the Web Root**:
+      - Store uploaded files in a directory that is not directly accessible via the web.
+    6. **Limit File Size**:
+      - Set a maximum file size to prevent DoS attacks.
+    7. **Use Secure File Permissions**:
+      - Ensure uploaded files have restricted permissions (e.g., `644`).
+    8. **Disable Execution**:
+      - Configure the server to prevent execution of uploaded files (e.g., disable PHP execution in upload directories).
+    9. **Use Content Security Policies (CSP)**:
+        - Restrict the types of content that can be loaded or executed.
+
+### 4.Nuclei
+  - is a fast, customizable, and open-source vulnerability scanner designed to automate the process of detecting security issues in web applications, networks, and infrastructure.
+  - It is developed by **ProjectDiscovery** and is widely used by security professionals for its simplicity, flexibility, and extensive template library.
 
 
-    #### Common JWT Vulnerabilities:
-      1. **None Algorithm**:
-        - Some libraries support the `none` algorithm, which means no signature is required.
-        - Attackers can modify the token and set the algorithm to `none` to bypass signature verification.
-      2. **Weak Secret Keys**:
-        - Using weak or predictable secret keys makes it easier for attackers to brute-force the signature.
-      3. **Algorithm Confusion**:
-        - If the server does not explicitly specify the expected algorithm, attackers can switch between symmetric (e.g., `HS256`) and asymmetric (e.g., `RS256`) algorithms to forge tokens.
-      4. **Token Expiry**:
-        - Missing or improperly implemented expiration (`exp`) claims can allow tokens to be used indefinitely.
-      5. **Sensitive Data in Payload**:
-        - Storing sensitive data (e.g., passwords, API keys) in the payload can lead to data exposure if the token is intercepted.
-      6. **Lack of Audience Validation**:
-        - Failing to validate the `aud` (audience) claim can allow tokens to be used across different applications.
+  #### Common Use Cases for Nuclei:
+    1. **Web Application Scanning**:
+      - Detect vulnerabilities like XSS, SQLi, SSRF, and more in web apps.
+    2. **Network Scanning**:
+      - Identify misconfigurations or exposed services in network infrastructure.
+    3. **Cloud Infrastructure Scanning**:
+      - Find misconfigured cloud resources (e.g., S3 buckets, exposed APIs).
+    4. **API Security Testing**:
+      - Test APIs for vulnerabilities like insecure endpoints or data leaks.
+    5. **Custom Vulnerability Detection**:
+      - Create custom templates to detect specific issues unique to your environment.
 
+  #### Basic Usage:
+    1. **Scan a Single Target**:
+      ```bash
+      nuclei -u https://example.com
+      ```
+    2. **Scan Multiple Targets**:
+      ```bash
+      nuclei -l targets.txt
+      ```
+    3. **Use Specific Templates**:
+      ```bash
+      nuclei -u https://example.com -t cves/ -t misconfigurations/
+      ```
+    4. **Update Templates**:
+      ```bash
+      nuclei -update-templates
+      ```
+    5. **Save Results**:
+      ```bash
+      nuclei -u https://example.com -o results.txt
+      ```
 
-    #### Prevention Measures:
-      1. **Use Strong Secret Keys**: Use cryptographically secure random keys for signing tokens.
-      2. **Disable the `none` Algorithm**: Ensure your JWT library rejects tokens with the `none` algorithm.
-      3. **Validate the Algorithm**: Explicitly specify and validate the expected signing algorithm.
-      4. **Set Expiration Time**: Always include and validate the `exp` claim to ensure tokens expire.
-      5. **Validate Claims**: Verify claims like `iss` (issuer), `aud` (audience), and `sub` (subject).
-      6. **Use HTTPS**: Always transmit JWTs over HTTPS to prevent interception.
-      7. **Store Tokens Securely**: Store JWTs securely on the client side (e.g., in `HttpOnly` cookies).
-      8. **Rotate Keys**: Regularly rotate signing keys to mitigate the impact of key compromise.
-
-
-    #### Tools for Testing JWT Security:
-      1. **jwt.io**: A popular tool for decoding and debugging JWTs.
-      2. **Burp Suite**: Use the *JWT Editor* extension to manipulate and test JWTs.
-      3. **jwt_tool**: A command-line tool for testing JWT vulnerabilities.
-
-    #### Example of JWT Exploitation:
-      1. **None Algorithm Attack**:
-        - Original Token:
-          ```
-          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-          ```
-        - Modified Token (Algorithm set to `none`):
-          ```
-          eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
-          ```
-      2. **Mitigation**:
-        - Ensure your JWT library rejects tokens with the `none` algorithm.
-
-  ### File Upload Vulnerabilities
-    - occur when a web application allows users to upload files without proper validation, filtering, or security controls.
-    -  Attackers can exploit this functionality to upload malicious files, execute arbitrary code, or compromise the server.
-    
-    #### Common Risks of File Upload Vulnerabilities:
-      1. **Malware Upload**:
-        - Attackers can upload malicious files (e.g., viruses, trojans) to the server.
-
-      2. **Remote Code Execution (RCE)**:
-        - Uploading executable files (e.g., `.php`, `.jsp`) can allow attackers to execute arbitrary code on the server.
-
-      3. **Denial of Service (DoS)**:
-        - Uploading large files or filling up disk space can crash the server or disrupt services.
-
-      4. **Upload Frontend Scripts**:
-        - HTML or SVG files can be used to injects JS script for XSS attacks.
-
-      5. **Defacement**:
-        - Attackers can overwrite or replace legitimate files with malicious content.
-
-    #### Common Exploitation Techniques:
-      1. **File Type Bypass**:
-        - Attackers bypass file type restrictions by modifying file extensions or MIME types.
-        - Example: Renaming a `.php` file to `.jpg.php`.
-
-      2. **Altenative Extensions** 
-        -Uploading files with alrenative formats like : `.phar` or `phtml`
-
-      3. **File Name Bypass**:
-        - Adding null bytes (`#`) to truncate the file extension during validation like `malicious.php#.jpg`.
-        - Adding null bytes (`%00`) or (`%0a`) to truncate the file extension during validation like `malicious.php%00.jpg`.
-
-      4. **File Content Manipulation**:
-        - Embedding malicious code within seemingly harmless files (e.g., images with embedded PHP code) and Bypassing *Magic bytes chack*.
-
-      5. **Path Traversal**:
-        - Uploading files to unintended directories by manipulating file paths.
-        - Example: `../../malicious.php`.
-
-    #### Prevention Measures:
-      1. **Validate File Types**:
-        - Use both file extension and MIME type validation.
-        - Example: Allow only `.jpg`, `.png`, and `.pdf` files.
-      2. **Use Allowlists**:
-        - Restrict uploads to a predefined list of allowed file types and extensions.
-      3. **Scan Files for Malware**:
-        - Use antivirus software to scan uploaded files for malicious content.
-      4. **Rename Uploaded Files**:
-        - Generate random filenames for uploaded files to prevent overwriting or path traversal.
-      5. **Store Files Outside the Web Root**:
-        - Store uploaded files in a directory that is not directly accessible via the web.
-      6. **Limit File Size**:
-        - Set a maximum file size to prevent DoS attacks.
-      7. **Use Secure File Permissions**:
-        - Ensure uploaded files have restricted permissions (e.g., `644`).
-      8. **Disable Execution**:
-        - Configure the server to prevent execution of uploaded files (e.g., disable PHP execution in upload directories).
-      9. **Use Content Security Policies (CSP)**:
-          - Restrict the types of content that can be loaded or executed.
-
+  #### Example Scans:
+    1. **Detect Exposed Admin Panels**:
+      ```bash
+      nuclei -u https://example.com -t exposed-panels/
+      ```
+    2. **Check for Common CVEs**:
+      ```bash
+      nuclei -u https://example.com -t cves/
+      ```
+    3. **Scan for Misconfigurations**:
+      ```bash
+      nuclei -u https://example.com -t misconfigurations/
+      ```
