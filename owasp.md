@@ -920,3 +920,63 @@
       2. **Mitigation**:
         - Ensure your JWT library rejects tokens with the `none` algorithm.
 
+  ### File Upload Vulnerabilities
+    - occur when a web application allows users to upload files without proper validation, filtering, or security controls.
+    -  Attackers can exploit this functionality to upload malicious files, execute arbitrary code, or compromise the server.
+    
+    #### Common Risks of File Upload Vulnerabilities:
+      1. **Malware Upload**:
+        - Attackers can upload malicious files (e.g., viruses, trojans) to the server.
+
+      2. **Remote Code Execution (RCE)**:
+        - Uploading executable files (e.g., `.php`, `.jsp`) can allow attackers to execute arbitrary code on the server.
+
+      3. **Denial of Service (DoS)**:
+        - Uploading large files or filling up disk space can crash the server or disrupt services.
+
+      4. **Upload Frontend Scripts**:
+        - HTML or SVG files can be used to injects JS script for XSS attacks.
+
+      5. **Defacement**:
+        - Attackers can overwrite or replace legitimate files with malicious content.
+
+    #### Common Exploitation Techniques:
+      1. **File Type Bypass**:
+        - Attackers bypass file type restrictions by modifying file extensions or MIME types.
+        - Example: Renaming a `.php` file to `.jpg.php`.
+
+      2. **Altenative Extensions** 
+        -Uploading files with alrenative formats like : `.phar` or `phtml`
+
+      3. **File Name Bypass**:
+        - Adding null bytes (`#`) to truncate the file extension during validation like `malicious.php#.jpg`.
+        - Adding null bytes (`%00`) or (`%0a`) to truncate the file extension during validation like `malicious.php%00.jpg`.
+
+      4. **File Content Manipulation**:
+        - Embedding malicious code within seemingly harmless files (e.g., images with embedded PHP code) and Bypassing *Magic bytes chack*.
+
+      5. **Path Traversal**:
+        - Uploading files to unintended directories by manipulating file paths.
+        - Example: `../../malicious.php`.
+
+    #### Prevention Measures:
+      1. **Validate File Types**:
+        - Use both file extension and MIME type validation.
+        - Example: Allow only `.jpg`, `.png`, and `.pdf` files.
+      2. **Use Allowlists**:
+        - Restrict uploads to a predefined list of allowed file types and extensions.
+      3. **Scan Files for Malware**:
+        - Use antivirus software to scan uploaded files for malicious content.
+      4. **Rename Uploaded Files**:
+        - Generate random filenames for uploaded files to prevent overwriting or path traversal.
+      5. **Store Files Outside the Web Root**:
+        - Store uploaded files in a directory that is not directly accessible via the web.
+      6. **Limit File Size**:
+        - Set a maximum file size to prevent DoS attacks.
+      7. **Use Secure File Permissions**:
+        - Ensure uploaded files have restricted permissions (e.g., `644`).
+      8. **Disable Execution**:
+        - Configure the server to prevent execution of uploaded files (e.g., disable PHP execution in upload directories).
+      9. **Use Content Security Policies (CSP)**:
+          - Restrict the types of content that can be loaded or executed.
+
