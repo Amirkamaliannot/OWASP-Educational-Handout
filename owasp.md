@@ -806,7 +806,7 @@
 
 
 
-## Week 4 (11)
+## Week 4 (11,12,13,14)
 ### 1.IDOR (Insecure Direct Object References) 
 - is a common web application vulnerability that occurs when an application exposes a reference to an internal object (e.g., a file, database record, or resource) without proper authorization checks. 
 - This allows attackers to manipulate these references to access unauthorized data or perform unauthorized actions.
@@ -1032,3 +1032,54 @@
       ```bash
       nuclei -u https://example.com -t misconfigurations/
       ```
+
+
+## Week 5 (15)
+
+### 1.XXE (XML External Entity)
+- is a security vulnerability that occurs when an application processes XML input without properly disabling external entity references. 
+- This allows attackers to exploit XML parsers to read sensitive files, perform server-side request forgery (SSRF), or execute arbitrary code.
+
+
+#### How XXE Works:
+1. **XML External Entities**:
+    - XML allows the definition of custom entities, which can reference external resources (e.g., files, URLs).
+    - Example:
+      ```xml
+      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+      <foo>&xxe;</foo>
+      ```
+
+2. **Exploitation**:
+    - An attacker injects malicious XML with external entity references into the application.
+    - The XML parser processes the input and resolves the external entities, leading to unintended behavior.
+
+
+#### Common XXE Attack Scenarios:
+  1. **File Disclosure**:
+    - Read sensitive files on the server (e.g., `/etc/passwd`, configuration files).
+    - Example:
+      ```xml
+      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+      <foo>&xxe;</foo>
+      ```
+  2. **Server-Side Request Forgery (SSRF)**:
+    - Make the server send requests to internal or external systems.
+    - Example:
+      ```xml
+      <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "http://internal-service/"> ]>
+      <foo>&xxe;</foo>
+      ```
+  3. **Denial of Service (DoS)**:
+    - Exploit entity expansion to consume server resources (e.g., Billion Laughs attack).
+    - Example:
+      ```xml
+      <!DOCTYPE foo [
+        <!ENTITY lol "lol">
+        <!ENTITY lol2 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+        <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+      ]>
+      <foo>&lol3;</foo>
+      ```
+  4. **Remote Code Execution (RCE)**:
+    - In some cases, XXE can lead to RCE if the XML parser supports dangerous features (e.g., PHP expect module).
